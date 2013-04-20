@@ -1,0 +1,113 @@
+Amazon Elastic MapReduce Ruby Client
+　http://aws.amazon.com/developertools/2264
+
+$ gem install elastic-mapreduce
+
+vi credentials.json
+
+{
+"access_id": "<access_key_idをここに>",
+"private_key": "<secret_access_keyをここに>",
+"keypair": "<key pair名をここに>",
+"key-pair-file": "<key pairに対応するpemファイルをフルパスでここに>",
+"log_uri": "s3n://<作成したbucket名をここに>/emr-log",
+"region": "ap-northeast-1"
+}
+
+$ elastic-mapreduce --list
+
+$ elastic-mapreduce --create --name hdp --num-instances 1 --instance-type m1.small --hive-interactive --hive-versions 0.8.1.6 --hadoop-version 1.0.3 --alive
+
+Created job flow j-XXXXXXXXXXXX
+
+ここで指定しているオプションは以下の意味です。
+–createの部分でインスタンスの作成を指定
+–nameの部分はインスタンス識別用の名称
+–num-instancesの部分は起動するインスタンス数
+–instance-typeの部分は起動するインスタンスの種別
+–hive-interactiveの部分はインタラクティブモードの指定
+–hive-versions/–hadoop-versionの部分は起動するバージョン
+–aliveの部分でインスタンスが自動終了しないよう指定
+　（通常のバッチ処理では、処理終了後にインスタンスが自動終了するため）
+
+
+$ elastic-mapreduce --jobflow <起動したJobFlow番号> --ssh
+
+$ hive
+
+
+$ hive> create external table sales (
+  saletime timestamp,
+  shop string,
+  amount int
+)
+row format delimited
+fields terminated by '\t' lines terminated by '\n'
+stored as textfile location 's3://<作成したbucket名をここに>/hive/external/sales';
+
+hive> select month(saletime), sum(amount) from sales group by month(saletime);
+Total MapReduce jobs = 1
+Launching Job 1 out of 1
+- 省略 -
+2012-12-28 02:38:02,592 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 4.85 sec
+2012-12-28 02:38:03,602 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 4.85 sec
+2012-12-28 02:38:04,668 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 4.85 sec
+- 省略 -
+OK
+11  1000
+12  5200
+Time taken: 62.534 seconds
+ 
+hive> select shop, sum(amount) from sales group by shop;
+Total MapReduce jobs = 1
+Launching Job 1 out of 1
+- 省略 -
+2012-12-28 02:41:12,370 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 4.17 sec
+2012-12-28 02:41:13,385 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 4.17 sec
+2012-12-28 02:41:14,395 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 4.17 sec
+- 省略 -
+OK
+京都店 2200
+大阪店 1200
+東京店 2800
+Time taken: 57.147 seconds
+
+$ elastic-mapreduce --terminate <起動したJobFlow番号>
+
+/hive/scripts/sales_summary.hql
+
+create external table sales (
+  saletime timestamp,
+  shop string,
+  amount int
+)
+row format delimited
+fields terminated by '\t' lines terminated by '\n'
+stored as textfile location 's3://<作成したbucket名をここに>/hive/external/sales';
+ 
+create external table sales_month (
+  month int,
+  amount int
+)
+row format delimited
+fields terminated by '\t' lines terminated by '\n'
+stored as textfile location 's3://<作成したbucket名をここに>/hive/summary/sales_month';
+ 
+create external table sales_shop (
+  shop string,
+  amount int
+)
+row format delimited
+fields terminated by '\t' lines terminated by '\n'
+stored as textfile location 's3://<作成したbucket名をここに>/hive/summary/sales_shop';
+ 
+insert overwrite table sales_month
+select month(saletime), sum(amount) from sales group by month(saletime);
+ 
+insert overwrite table sales_shop
+select shop, sum(amount) from sales group by shop;
+
+$ elastic-mapreduce --create --name hdp --num-instances 1 --instance-type m1.small --hive-script "s3://palcommonstore/hive/scripts/sales_summary.hql" --hive-versions 0.8.1.6 --hadoop-version 1.0.3
+Created job flow j-XXXXXXXXXXXX
+
+
