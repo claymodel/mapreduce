@@ -80,7 +80,6 @@ public class UDAFCardinalityEstimator implements GenericUDAFResolver2 {
     //public static final byte HLL = 0;
     //public static final byte LC = 1;
 
-    @Override
     public GenericUDAFEvaluator getEvaluator(GenericUDAFParameterInfo info) throws SemanticException {
         TypeInfo[] parameters = info.getParameters();
         // validate the first parameter, which is the expression to compute over
@@ -126,7 +125,6 @@ public class UDAFCardinalityEstimator implements GenericUDAFResolver2 {
         return new CardinalityEstimatorEvaluator();
     }
 
-    @Override
     public GenericUDAFEvaluator getEvaluator(TypeInfo[] typeInfos) throws SemanticException {
         return new CardinalityEstimatorEvaluator();
     }
