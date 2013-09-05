@@ -20,6 +20,7 @@ public class WordCountJob {
 		Configuration conf = new Configuration();
 		String[] otherArgs = new GenericOptionsParser(conf, args)
 				.getRemainingArgs();
+
 		if (otherArgs.length != 2) {
 			System.err
 					.println("Usage: com.elias.mapreduce.wordcounter.WordCountJob <in> <out>");
