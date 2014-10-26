@@ -1,7 +1,10 @@
 Hadoop Hive Compitibility for Hadoop-2.4.1 and Hive-0.13.1
 
+```bash
 ADD jar 'wasb://xxx@xxx.blob.core.windows.net/hive/azure-log-serde-1.0-SNAPSHOT.jar';
+```
 
+```bash
 create table accesslogs(
 bucketowner             string,
 bucketname              string,
@@ -25,3 +28,4 @@ versionid               string
 ROW FORMAT SERDE 'jp.elias.azure.blob.serde.BlobLogDeserializer'
 LOCATION 'wasb://xxx@xxx.blob.core.windows.net/HdiData/WebsiteLogData/log/'
 TBLPROPERTIES ('skip.header.line.count'='1');
+```
