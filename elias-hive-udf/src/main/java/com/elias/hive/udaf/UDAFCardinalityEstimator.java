@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Hyper Log Logistic Approximation : Reference 関連情報は下記の通りになります。
  * Hive Generic UDAF for approximate counting of unique values in a column (cardinality estimation). This UDAF implements
  * HyperLogLog (see http://algo.inria.fr/flajolet/Publications/FlFuGaMe07.pdf) and Linear Counting
  * (http://dblab.kaist.ac.kr/Publication/pdf/ACM90_TODS_v15n2.pdf).
